@@ -60,6 +60,14 @@ public abstract class ServerCallStreamObserver<V> extends CallStreamObserver<V> 
   public abstract void setOnCancelHandler(Runnable onCancelHandler);
 
   /**
+   * Causes {@link #onCompleted()} to throw {@link io.grpc.StatusRuntimeException} if the call was
+   * cancelled. This is useful for methods that need to attempt to roll back effects of the call
+   * on cancel and that do not dispatch work to other threads (so that handler set by
+   * {@link #setOnCancelHandler(Runnable)} will be called only after the method exits).
+   */
+  public abstract void setOnCompletedThrowsIfCancelled();
+
+  /**
    * Sets the compression algorithm to use for the call. May only be called before sending any
    * messages. Default gRPC servers support the "gzip" compressor.
    *

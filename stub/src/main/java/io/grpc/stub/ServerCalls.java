@@ -320,6 +320,7 @@ public final class ServerCalls {
     private Runnable onCancelHandler;
     private boolean aborted = false;
     private boolean completed = false;
+    private boolean onCompletedThrowsIfCancelled = false;
 
     // Non private to avoid synthetic class
     ServerCallStreamObserverImpl(ServerCall<ReqT, RespT> call, boolean serverStreamingOrBidi) {
@@ -377,8 +378,16 @@ public final class ServerCalls {
 
     @Override
     public void onCompleted() {
+      if (call.isCancelled() && onCompletedThrowsIfCancelled) {
+        throw Status.CANCELLED.asRuntimeException();
+      }
       call.close(Status.OK, new Metadata());
       completed = true;
+    }
+
+    @Override
+    public void setOnCompletedThrowsIfCancelled() {
+      onCompletedThrowsIfCancelled = true;
     }
 
     @Override
